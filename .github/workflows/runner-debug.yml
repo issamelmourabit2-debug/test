@@ -12,9 +12,16 @@ jobs:
     timeout-minutes: 60
 
     steps:
+      - name: Install tmate
+        timeout-minutes: 5
+        run: |
+          sudo apt-get update
+          sudo env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y tmate openssh-client xz-utils
+          tmate -V
+
       - name: Open temporary SSH session
         uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 55
+        timeout-minutes: 50
         with:
           limit-access-to-actor: true
           install-dependencies: false
