@@ -19,9 +19,19 @@ jobs:
           sudo env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y tmate openssh-client xz-utils
           tmate -V
 
+      - name: Check tmate server connection
+        timeout-minutes: 2
+        run: |
+          getent hosts ssh.tmate.io
+          timeout 20 bash -c 'exec 3<>/dev/tcp/ssh.tmate.io/22; head -c 100 <&3'
+
       - name: Open temporary SSH session
         uses: mxschmitt/action-tmate@v3
         timeout-minutes: 50
         with:
           limit-access-to-actor: true
           install-dependencies: false
+          tmate-server-host: ssh.tmate.io
+          tmate-server-port: 22
+          tmate-server-rsa-fingerprint: SHA256:Hthk2T/M/Ivqfk1YYUn5ijC2Att3+UPzD7Rn72P5VWs
+          tmate-server-ed25519-fingerprint: SHA256:jfttvoypkHiQYUqUCwKeqd9d1fJj/ZiQlFOHVl6E9sI
