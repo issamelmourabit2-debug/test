@@ -7,23 +7,40 @@ permissions:
   contents: read
 
 jobs:
-  diagnose:
+  debug:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 60
 
     steps:
-      - name: Diagnose DNS
-        shell: bash
-        run: |
-          for host in github.com tmate.io ssh.tmate.io; do
-            echo "Checking: $host"
-            if timeout 10 getent ahostsv4 "$host"; then
-              echo "DNS OK"
-            else
-              echo "DNS FAILED"
-            fi
-          done
+      - name: Download repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-          echo "Public DNS check:"
-          curl --max-time 20 --fail --silent --show-error \
-            'https://dns.google/resolve?name=ssh.tmate.io&type=A'
+      - name: Install Tailscale
+        timeout-minutes: 5
+        run: |
+          curl -fsSL https://tailscale.com/install.sh -o /tmp/install-tailscale.sh
+          sh /tmp/install-tailscale.sh
+
+      - name: Connect runner to your Tailscale account
+        timeout-minutes: 10
+        run: |
+          sudo tailscale up \
+            --ssh \
+            --accept-dns=false \
+            --hostname="github-debug-${GITHUB_RUN_ID}" \
+            --timeout=9m
+
+      - name: Show SSH connection and keep session open
+        timeout-minutes: 41
+        run: |
+          RUNNER_IP="$(tailscale ip -4)"
+          echo "Run this command in PowerShell:"
+          echo "ssh runner@${RUNNER_IP}"
+          echo "Session available for up to 40 minutes."
+          sleep 2400
+
+      - name: Disconnect Tailscale
+        if: always()
+        run: sudo tailscale logout
