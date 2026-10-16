@@ -10,9 +10,11 @@ jobs:
   debug:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+
     steps:
       - name: Open temporary SSH session
         uses: mxschmitt/action-tmate@v3
         timeout-minutes: 55
         with:
           limit-access-to-actor: true
+          install-dependencies: false
