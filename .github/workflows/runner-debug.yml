@@ -9,7 +9,7 @@ permissions:
 jobs:
   debug:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     steps:
       - name: Download repository
@@ -18,13 +18,14 @@ jobs:
           persist-credentials: false
 
       - name: Install Tailscale
-        timeout-minutes: 5
+        timeout-minutes: 1
         run: |
+          curl ifconfig.me
           curl -fsSL https://tailscale.com/install.sh -o /tmp/install-tailscale.sh
           sh /tmp/install-tailscale.sh
 
       - name: Connect runner to your Tailscale account
-        timeout-minutes: 10
+        timeout-minutes: 1
         run: |
           sudo tailscale up \
             --ssh \
@@ -33,12 +34,12 @@ jobs:
             --timeout=9m
 
       - name: Show SSH connection and keep session open
-        timeout-minutes: 41
+        timeout-minutes: 115
         run: |
           RUNNER_IP="$(tailscale ip -4)"
           echo "Run this command in PowerShell:"
           echo "ssh runner@${RUNNER_IP}"
-          echo "Session available for up to 40 minutes."
+          echo "Session available for up to 115 minutes."
           sleep 2400
 
       - name: Disconnect Tailscale
