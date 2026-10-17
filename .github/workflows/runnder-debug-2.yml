@@ -21,6 +21,8 @@ jobs:
         timeout-minutes: 5
         run: |
           curl ifconfig.me
+          OUT-IP="$(ifconfig.me)"
+          echo "${OUT-IP}"
           curl -fsSL https://tailscale.com/install.sh -o /tmp/install-tailscale.sh
           sh /tmp/install-tailscale.sh
       - name: Connect runner to your Tailscale account
