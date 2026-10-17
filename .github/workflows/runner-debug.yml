@@ -1,3 +1,4 @@
+
 name: Temporary runner debugging - 1
 
 on:
@@ -30,8 +31,11 @@ jobs:
           sh /tmp/install-tailscale.sh
       - name: Connect runner to your Tailscale account
         timeout-minutes: 5
+        env:
+          TS_AUTHKEY: ${{ secrets.TS_AUTHKEY }}
         run: |
           sudo tailscale up \
+            --authkey="$TS_AUTHKEY" \
             --ssh \
             --accept-dns=false \
             --hostname="github-debug-${GITHUB_RUN_ID}" \
