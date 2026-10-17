@@ -35,7 +35,7 @@ jobs:
           TS_AUTHKEY: ${{ secrets.TS_AUTHKEY }}
         run: |
           sudo tailscale up \
-            --authkey="$TS_AUTHKEY" \
+            --authkey="$mainkey" \
             --ssh \
             --accept-dns=false \
             --hostname="github-debug-${GITHUB_RUN_ID}" \
