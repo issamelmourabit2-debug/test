@@ -6,6 +6,14 @@ on:
 permissions:
   contents: read
 
+# Only one workflow may use this hostname at a time.
+concurrency:
+  group: tailscale-work-1
+  cancel-in-progress: false
+
+env:
+  TS_HOSTNAME: work-1
+
 jobs:
   debug:
     runs-on: ubuntu-latest
@@ -17,12 +25,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Show public IP
-        run: |
-          echo "=== PUBLIC IP ==="
-          curl -4fsS --max-time 20 https://api.ipify.org
-          echo
-
       - name: Install Tailscale
         timeout-minutes: 5
         run: |
@@ -32,14 +34,14 @@ jobs:
             -o /tmp/install-tailscale.sh
           sudo sh /tmp/install-tailscale.sh
 
-      - name: Connect runner to Tailscale
+      - name: Connect with fixed hostname
         timeout-minutes: 5
         env:
           TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
         run: |
           set -euo pipefail
           test -n "$TAILSCALE_AUTHKEY" || {
-            echo "::error::Missing TAILSCALE_AUTHKEY repository secret"
+            echo "::error::Missing TAILSCALE_AUTHKEY secret"
             exit 1
           }
 
@@ -47,20 +49,30 @@ jobs:
             --authkey="$TAILSCALE_AUTHKEY" \
             --ssh \
             --accept-dns=false \
-            --hostname="gh-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            --hostname="$TS_HOSTNAME" \
             --timeout=4m
 
-      - name: Show SSH connection and keep session open
+          # Fail clearly if an old device is holding the requested name.
+          ACTUAL_DNS="$(tailscale status --json |
+            python3 -c 'import json,sys; print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))')"
+
+          EXPECTED_DNS="${TS_HOSTNAME}.tail5244e2.ts.net"
+
+          if [ "$ACTUAL_DNS" != "$EXPECTED_DNS" ]; then
+            echo "::error::Expected $EXPECTED_DNS but received $ACTUAL_DNS"
+            echo "Check Tailscale Machines for an old device using this name."
+            exit 1
+          fi
+
+      - name: Show SSH command and keep session available
         timeout-minutes: 225
         run: |
-          set -euo pipefail
-          RUNNER_IP="$(tailscale ip -4)"
-          echo "Connect from a device on your tailnet:"
-          echo "ssh runner@${RUNNER_IP}"
+          echo "Connect from your Tailscale-connected PC:"
+          echo "ssh runner@${TS_HOSTNAME}.tail5244e2.ts.net"
           echo "Session available for 220 minutes."
           sleep 13200
 
-      - name: Disconnect Tailscale
+      - name: Disconnect and clean up
         if: always()
         timeout-minutes: 2
         run: |
