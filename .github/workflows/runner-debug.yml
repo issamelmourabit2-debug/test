@@ -9,7 +9,7 @@ permissions:
 jobs:
   debug:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 240
 
     steps:
       - name: Download repository
@@ -25,7 +25,7 @@ jobs:
           sh /tmp/install-tailscale.sh
 
       - name: Connect runner to your Tailscale account
-        timeout-minutes: 1
+        timeout-minutes: 5
         run: |
           sudo tailscale up \
             --ssh \
