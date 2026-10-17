@@ -18,7 +18,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Tailscale
-        timeout-minutes: 1
+        timeout-minutes: 5
         run: |
           curl ifconfig.me
           curl -fsSL https://tailscale.com/install.sh -o /tmp/install-tailscale.sh
@@ -34,12 +34,12 @@ jobs:
             --timeout=9m
 
       - name: Show SSH connection and keep session open
-        timeout-minutes: 115
+        timeout-minutes: 240
         run: |
           RUNNER_IP="$(tailscale ip -4)"
           echo "Run this command in PowerShell:"
           echo "ssh runner@${RUNNER_IP}"
-          echo "Session available for up to 115 minutes."
+          echo "Session available for up to 240 minutes."
           sleep 2400
 
       - name: Disconnect Tailscale
