@@ -1,0 +1,51 @@
+name: Temporary runner debugging - 3
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          
+      - name: Show public IP
+        run: |
+          echo "=== PUBLIC IP ==="
+          curl -4fsS https://api.ipify.org
+          echo
+      - name: Install Tailscale
+        timeout-minutes: 5
+        run: |
+          curl ifconfig.me
+          curl -fsSL https://tailscale.com/install.sh -o /tmp/install-tailscale.sh
+          sh /tmp/install-tailscale.sh
+      - name: Connect runner to your Tailscale account
+        timeout-minutes: 5
+        run: |
+          sudo tailscale up \
+            --ssh \
+            --accept-dns=false \
+            --hostname="github-debug-${GITHUB_RUN_ID}" \
+            --timeout=9m
+
+      - name: Show SSH connection and keep session open
+        timeout-minutes: 240
+        run: |
+          RUNNER_IP="$(tailscale ip -4)"
+          echo "Run this command in PowerShell:"
+          echo "ssh runner@${RUNNER_IP}"
+          echo "Session available for up to 240 minutes."
+          sleep 2400
+
+      - name: Disconnect Tailscale
+        if: always()
+        run: sudo tailscale logout
