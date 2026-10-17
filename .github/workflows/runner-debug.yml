@@ -48,7 +48,7 @@ jobs:
           echo "Run this command in PowerShell:"
           echo "ssh runner@${RUNNER_IP}"
           echo "Session available for up to 240 minutes."
-          sleep 2400
+          sleep 14100
 
       - name: Disconnect Tailscale
         if: always()
